@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Benzina e km</title>
+<meta name="description" content="Registro rifornimenti e consumi: km/L, spesa, grafici e statistiche mensili.">
+<meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Benzina">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <h1>Benzina e km</h1>
+  <span class="spacer"></span>
+  <select class="vsel" id="vsel" aria-label="Veicolo attivo"></select>
+</header>
+
+<main>
+  <!-- ============ RIEPILOGO ============ -->
+  <section class="view on" id="v-home" role="tabpanel" aria-label="Riepilogo">
+    <div id="home-notes"></div>
+
+    <div class="card hero">
+      <div class="val" id="h-val">—</div>
+      <div class="cap" id="h-cap">consumo medio</div>
+      <div class="alt" id="h-alt"></div>
+    </div>
+
+    <div class="sec-title">Ritmo attuale <span id="h-window" style="text-transform:none;letter-spacing:0"></span></div>
+    <div class="tiles three" id="t-rate"></div>
+
+    <div class="sec-title mt">Ultimo rifornimento</div>
+    <div id="t-last"></div>
+
+    <div class="sec-title mt">Totali dall'inizio</div>
+    <div class="tiles" id="t-tot"></div>
+
+    <div class="sec-title mt">Prezzo del carburante</div>
+    <div class="tiles three" id="t-price"></div>
+
+    <div class="sec-title mt">Consumo</div>
+    <div class="tiles" id="t-cons"></div>
+  </section>
+
+  <!-- ============ ELENCO ============ -->
+  <section class="view" id="v-list" role="tabpanel" aria-label="Elenco">
+    <div class="seg" id="list-filter" style="margin-bottom:12px">
+      <button data-f="all" aria-pressed="true">Tutti</button>
+      <button data-f="refuel" aria-pressed="false">Rifornimenti</button>
+      <button data-f="odo" aria-pressed="false">Solo odometro</button>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <!-- ============ GRAFICI ============ -->
+  <section class="view" id="v-charts" role="tabpanel" aria-label="Grafici">
+    <div class="seg" id="unit-toggle" style="margin-bottom:12px">
+      <button data-u="kmL" aria-pressed="true">km/L</button>
+      <button data-u="l100" aria-pressed="false">L/100 km</button>
+    </div>
+    <div id="charts"></div>
+  </section>
+
+  <!-- ============ IMPOSTAZIONI ============ -->
+  <section class="view" id="v-set" role="tabpanel" aria-label="Impostazioni">
+    <div class="card">
+      <h2>Veicoli</h2>
+      <div id="vlist"></div>
+      <button class="btn sec" id="add-vehicle" style="margin-top:8px">+ Aggiungi veicolo</button>
+    </div>
+
+    <div class="card">
+      <h2>Dati</h2>
+      <div id="export-note"></div>
+      <div class="btnrow">
+        <button class="btn" id="exp-json">Esporta JSON</button>
+        <button class="btn sec" id="exp-csv">Esporta CSV</button>
+      </div>
+      <button class="btn sec" id="imp-btn" style="margin-top:8px">Importa da file…</button>
+      <input type="file" id="imp-file" accept=".json,.csv,.txt,application/json,text/csv" hidden>
+      <p style="font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.5">
+        L'esportazione comprende <b>tutti i veicoli</b>. Il JSON conserva ogni campo ed è il formato
+        da usare per i backup; il CSV si apre direttamente in un foglio di calcolo.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Conservazione dei dati</h2>
+      <div id="storage-status"></div>
+      <details class="help">
+        <summary>Perché installare l'app sulla schermata Home</summary>
+        <div class="body">
+          <p>Safari cancella i dati salvati da un sito (localStorage, IndexedDB, cache)
+          dopo <b>7 giorni senza visite</b>. Se i rifornimenti sono ogni due o tre settimane,
+          significherebbe trovare l'app vuota ogni volta.</p>
+          <p>Le web app <b>aggiunte alla schermata Home non rientrano in questo limite</b>: hanno un
+          conteggio proprio, che si azzera ogni volta che apri l'app. Su Android il limite
+          non esiste in nessun caso.</p>
+          <p><b>iPhone / iPad:</b></p>
+          <ol>
+            <li>Apri l'app in <b>Safari</b> (non in Chrome: solo Safari può installare)</li>
+            <li>Tocca il pulsante Condividi (il quadrato con la freccia)</li>
+            <li>Scorri e scegli <b>Aggiungi a Home</b></li>
+            <li>Da lì in poi apri l'app dall'icona, non dal browser</li>
+          </ol>
+          <p><b>Android:</b> menu ⋮ → <b>Installa app</b> (o <i>Aggiungi a schermata Home</i>).</p>
+          <p><b>Mac:</b> Safari → File → <b>Aggiungi al Dock</b>; Chrome → icona di installazione
+          nella barra degli indirizzi.</p>
+          <p>In ogni caso l'esportazione periodica resta la sola difesa completa: un file
+          JSON in iCloud o Drive sopravvive anche alla cancellazione dell'app.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>Aspetto</h2>
+      <div class="seg" id="theme-toggle">
+        <button data-t="auto" aria-pressed="true">Automatico</button>
+        <button data-t="light" aria-pressed="false">Chiaro</button>
+        <button data-t="dark" aria-pressed="false">Scuro</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Come vengono calcolati i valori</h2>
+      <details class="help">
+        <summary>Consumo, e perché serve il pieno</summary>
+        <div class="body">
+          <p>Il livello del serbatoio è noto con esattezza solo quando è pieno fino al tappo.
+          Il consumo si calcola quindi <b>da un pieno al successivo</b>:</p>
+          <p><code>km/L = (km percorsi fra i due pieni) ÷ (litri messi dopo il primo pieno, fino al secondo compreso)</code></p>
+          <p>I rifornimenti parziali nel mezzo non vanno persi: i loro litri rientrano nel
+          conteggio del pieno successivo. Un rifornimento non a tappo non ha un consumo proprio,
+          per questo nell'elenco appare senza valore.</p>
+          <p>Quando il rifornimento precedente non era a tappo, il valore copre l'intero intervallo
+          fra i due pieni e viene segnalato: resta corretto come media del periodo, ma non
+          descrive il singolo pieno.</p>
+        </div>
+      </details>
+      <details class="help">
+        <summary>Km/mese, L/mese, €/mese</summary>
+        <div class="body">
+          <p>Nell'elenco ogni riga riporta il ritmo mensile calcolato su una <b>finestra mobile
+          di circa 90 giorni</b> che termina in quella data: quanti km, litri ed euro al ritmo
+          di quel periodo, normalizzati a un mese medio di 30,44 giorni.</p>
+          <p>La finestra serve a evitare l'estrapolazione: due rifornimenti a quattro giorni di
+          distanza darebbero "3.000 km/mese", un numero vero ma privo di senso. Nel dettaglio
+          di ogni riga trovi comunque anche il valore del singolo intervallo.</p>
+          <p>Nei grafici mensili invece i totali sono per <b>mese solare</b>: spesa e litri sono
+          somme esatte dei rifornimenti del mese, mentre i km vengono ripartiti sui giorni,
+          perché l'odometro fornisce solo totali fra due letture. Il mese in corso è
+          incompleto ed è mostrato in tono più chiaro.</p>
+        </div>
+      </details>
+      <details class="help">
+        <summary>Media dei consumi e prezzo medio</summary>
+        <div class="body">
+          <p>Il consumo medio non è la media dei singoli valori, ma il rapporto fra
+          <b>tutti i km</b> e <b>tutti i litri</b> delle tratte valide: una tratta di 700 km
+          deve pesare più di una da 300.</p>
+          <p>Allo stesso modo il prezzo medio è la spesa totale divisa per i litri totali, quindi
+          ponderato sulla quantità effettivamente comprata.</p>
+        </div>
+      </details>
+    </div>
+
+    <p style="text-align:center;font-size:11.5px;color:var(--muted);padding:8px 0 20px">
+      I dati restano su questo dispositivo. Nessun account, nessun invio in rete.
+    </p>
+  </section>
+</main>
+
+<button class="fab" id="fab" aria-label="Aggiungi">＋</button>
+
+<nav class="tabs" role="tablist">
+  <button data-v="home" aria-selected="true" role="tab"><span class="gl">◔</span>Riepilogo</button>
+  <button data-v="list" aria-selected="false" role="tab"><span class="gl">☰</span>Elenco</button>
+  <button data-v="charts" aria-selected="false" role="tab"><span class="gl">◪</span>Grafici</button>
+  <button data-v="set" aria-selected="false" role="tab"><span class="gl">⚙</span>Impostazioni</button>
+</nav>
+
+<div id="modal"></div>
+
+<script src="compute.js"></script>
+<script src="store.js"></script>
+<script src="charts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
